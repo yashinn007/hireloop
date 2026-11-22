@@ -9,6 +9,8 @@ import {
   Input,
   Label,
   TextField,
+  Radio,
+  RadioGroup,
 } from "@heroui/react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -20,12 +22,14 @@ const SignupPage = () => {
 
     const formData = new FormData(e.currentTarget);
     const userData = Object.fromEntries(formData.entries());
+    console.log(userData);
 
     const { data, error } = await authClient.signUp.email({
       name: userData.name,
       email: userData.email,
       password: userData.password,
       image: userData.image,
+      role: userData.role,
     });
 
     if (data) {
@@ -82,6 +86,7 @@ const SignupPage = () => {
             <Input placeholder="https//..." />
             <FieldError />
           </TextField>
+          {/* password */}
           <TextField
             isRequired
             minLength={8}
@@ -107,6 +112,32 @@ const SignupPage = () => {
             </Description>
             <FieldError />
           </TextField>
+          {/* role selection */}
+          <div className="flex flex-col gap-4">
+            <Label>Select Role</Label>
+            <RadioGroup
+              defaultValue="seeker"
+              name="role"
+              orientation="horizontal"
+            >
+              <Radio value="seeker">
+                <Radio.Content>
+                  <Radio.Control>
+                    <Radio.Indicator />
+                  </Radio.Control>
+                  Job Seeker
+                </Radio.Content>
+              </Radio>
+              <Radio value="recruiter">
+                <Radio.Content>
+                  <Radio.Control>
+                    <Radio.Indicator />
+                  </Radio.Control>
+                  Recruiter
+                </Radio.Content>
+              </Radio>
+            </RadioGroup>
+          </div>
           <div>
             <Button type="submit" className="bg-[#5c53fe] w-full">
               Sign up

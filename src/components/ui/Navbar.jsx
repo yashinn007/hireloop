@@ -4,9 +4,15 @@ import { Link, Button, Spinner } from "@heroui/react";
 import NavLinks from "./NavLinks";
 import Image from "next/image";
 import logo from "@/assets/logo.png";
+import { authClient } from "@/lib/auth-client";
+import { DropdownProfile } from "./DropdownProfile";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
+  console.log("user session:", user);
 
   const links = (
     <>
@@ -71,19 +77,25 @@ export default function Navbar() {
           </div>
         </div>
         <ul className="hidden items-center gap-4 md:flex">{links}</ul>
-
         {/* container */}
         <div className="flex gap-2 items-center">
           {/* buttons */}
-
-          <div className="space-x-2 ">
-            <Link href="/login">Login</Link>
-            <Link href="/signup">
-              <Button size="sm" className="bg-[#5C53FE]">
-                Sign Up
-              </Button>
-            </Link>
-          </div>
+          {isPending ? (
+            <>
+              <Spinner color="success" className="mr-2" />
+            </>
+          ) : !user ? (
+            <div className="space-x-2 ">
+              <Link href="/login">Login</Link>
+              <Link href="/signup">
+                <Button size="sm" className="bg-[#5c53fe]">
+                  Sign Up
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <DropdownProfile user={user}></DropdownProfile>
+          )}
         </div>
       </header>
       {isMenuOpen && (
