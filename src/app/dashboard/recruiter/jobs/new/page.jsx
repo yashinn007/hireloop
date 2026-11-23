@@ -20,6 +20,9 @@ import {
   LuCircleAlert,
   LuCircleCheck,
 } from "react-icons/lu";
+import { createJob } from "@/lib/actions/job";
+import toast from "react-hot-toast";
+import { redirect } from "next/navigation";
 
 const JOB_CATEGORIES = [
   "Engineering & Tech",
@@ -89,7 +92,7 @@ export default function PostNewJobPage({ company = mockRecruiterCompany }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -137,8 +140,35 @@ export default function PostNewJobPage({ company = mockRecruiterCompany }) {
       isPublic: true,
     };
 
-    console.log("Submitted Job Form Data:", payload);
-    setSubmittedPreview(payload);
+    const res = await createJob(payload);
+
+    if (res.error) {
+      setErrorMessage(res.error);
+      toast.error(res.error);
+      return;
+    }
+
+    if (res.insertedId) {
+      toast.success("Job posted successfully!");
+      setSubmittedPreview(payload);
+      setFormData({
+        title: "",
+        companyName: company?.name || "",
+        category: "Engineering & Tech",
+        jobType: "Full-time",
+        isRemote: false,
+        city: "",
+        country: "",
+        deadline: "",
+        salaryMin: "",
+        salaryMax: "",
+        currency: "USD",
+        responsibilities: "",
+        requirements: "",
+        benefits: "",
+      });
+      redirect("/dashboard/recruiter");
+    }
   };
 
   return (
@@ -204,14 +234,6 @@ export default function PostNewJobPage({ company = mockRecruiterCompany }) {
             {errorMessage}
           </div>
         )}
-
-        {/* CONSOLE LOG CONFIRMATION BANNER */}
-        {/* {submittedPreview && (
-          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-sm text-emerald-300">
-            Form data logged in browser console (<code>console.log</code>). No
-            API request was sent.
-          </div>
-        )} */}
 
         {/* SECTION 1: BASIC INFORMATION */}
         <Card className="bg-[#161719] border border-[#26272b] rounded-2xl shadow-none">
